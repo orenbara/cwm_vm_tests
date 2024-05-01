@@ -168,7 +168,7 @@ if [ -z "$1" ] || [ -z "$2" ]; then
 fi
 ELK_SRV_NGINX="$1"
 ELK_SRV_IP="$2"
-CONFIG_FILE="./elk_nginx.conf"
+CONFIG_FILE="./test_and_log.conf"
 
 configure_script
 create_log_file
