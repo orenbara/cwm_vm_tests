@@ -109,7 +109,7 @@ create_err_json(){
 
   cat <<EOF >> $ERR_LOG_JSON
     "cwm_domain": "$cwm_domain",
-    "test_name": "$test_name",
+    "test_names": "$test_name",
     "zone": "$zone",
     "name": "$name",
     "cpu": "$cpu",
