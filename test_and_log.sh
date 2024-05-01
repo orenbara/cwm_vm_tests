@@ -25,7 +25,7 @@ create_log_file() {
 
 # Back up files at /root
 backup_files() {
-  echo "*------------------- Back up files at /root -------------------*"
+  echo "*------------------- Back up files at /root -------------------*" >> $LOG_FILE
   cp $DATA_DIR/guest.errlog $BACKUP_DIR/guest.errlog_cp
   cp $DATA_DIR/20*.log $BACKUP_DIR/guest.executionlog_cp
   cp $DATA_DIR/guest.conf $BACKUP_DIR/guest.conf_cp
@@ -33,14 +33,14 @@ backup_files() {
 }
 
 create_err_json(){
-  echo "*------------------- constract the document for elastic upload -------------------*"
+  echo "*------------------- constract the document for elastic upload -------------------*" >> $LOG_FILE
   #cd /root/
   touch "$ERR_LOG_JSON"
   echo -e "{\n" > "$ERR_LOG_JSON"
   # count will provide json keys for error lines
   line_count=1
 
-  echo "*------------------- PREPARE ERROR LOG -------------------*"
+  echo "*------------------- PREPARE ERROR LOG -------------------*" >> $LOG_FILE
   # remove json special characters
   sed -i 's|"||g' $ERR_LOG_CP
   sed -i "s|'||g" $ERR_LOG_CP
@@ -72,7 +72,7 @@ create_err_json(){
   fi
   done < $ERR_LOG_CP
 
-  echo "*------------------- PREPARE Execution LOG -------------------*"
+  echo "*------------------- PREPARE Execution LOG -------------------*" >> $LOG_FILE
   # remove json special characters
   sed -i 's|"||g' $EXEC_LOG_CP
   sed -i "s|'||g" $EXEC_LOG_CP
@@ -98,7 +98,7 @@ create_err_json(){
   fi
   done < $EXEC_LOG_CP
 
-  echo "*------------------- add conf data to json errlog: -------------------*"
+  echo "*------------------- add conf data to json errlog: -------------------*" >> $LOG_FILE
   # Modify OSDescrition in guest.conf so that it wont try to run during source
   sed -i "s/OSDescription/#OSDescription/g" $GUEST_CONF_CP
   sed -i "s/guestDescription/#guestDescription/g" $GUEST_CONF_CP
@@ -139,7 +139,7 @@ EOF
 # For systems running csf - allow elastic
 # Function to allow elastic in firewall
 csf_allow() {
-    echo "*------------------- FW stuff -------------------*"
+    echo "*------------------- FW stuff -------------------*" >> $LOG_FILE
     if systemctl is-active csf &> /dev/null; then
         csf -a "$ELK_SRV_IP"
     fi
@@ -147,7 +147,7 @@ csf_allow() {
 
 # Send the data to elastic server
 send_msg(){
-  echo "*------------------- forward to nginx -------------------*"
+  echo "*------------------- forward to nginx -------------------*" >> $LOG_FILE
   if ! curl -XPOST -H "Host: add.data.to.elk" "$ELK_SRV_NGINX" -d "@$ERR_LOG_JSON" --insecure >> "$LOG_FILE" 2>&1; then
       echo "Failed to send message to nginx"
       exit 1
@@ -156,11 +156,11 @@ send_msg(){
 
 # Function to clean up temporary files
 cleanup() {
-    echo "*------------------- Remove temp guest files -------------------*"
+    echo "*------------------- Remove temp guest files -------------------*" >> $LOG_FILE
     rm -rf "$ERR_LOG_CP" "$EXEC_LOG_CP" "$GUEST_CONF_CP"
 }
 
-echo "*------------------- publish to elk -------------------*"
+echo "*------------------- publish to elk -------------------*" >> $LOG_FILE
 # Check if positional parameters $1 and $2 are provided
 if [ -z "$1" ] || [ -z "$2" ]; then
     echo "Usage: $0 <elk_srv_nginx> <elk_srv_ip>"
